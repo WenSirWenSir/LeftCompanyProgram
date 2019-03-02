@@ -1,36 +1,23 @@
 package com.zbyj.Yazhou.LeftCompanyProgram;
 
 import android.annotation.SuppressLint;
-import android.app.Notification;
-import android.app.NotificationManager;
-import android.app.PendingIntent;
 import android.content.Context;
-import android.content.Intent;
 import android.content.SharedPreferences;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
-import android.os.Environment;
 import android.telephony.TelephonyManager;
 import android.util.Log;
 import android.view.WindowManager;
-import android.widget.RemoteViews;
 import android.widget.Toast;
 
 
 import java.io.File;
-import java.io.FileOutputStream;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.net.URL;
-import java.net.URLConnection;
 import java.security.MessageDigest;
 
 public class Tools {
 
     /**
-     * 判断网络是否连接
+     * Whether the network is Connected
      *
      * @param context
      * @return
@@ -52,32 +39,19 @@ public class Tools {
         }
     }
 
-    /**
-     * 拒绝下面的号码进行使用该服务
-     *
-     * @param tPhone 要查询的电话号码
-     */
-    public static Boolean IsOnRefusePhone(String tPhone) {
-        for (int i = 0; i < ONREFUSEPHONE.ON_REFUSEPHONE_NUMBERS.split("\\;").length; i++) {
-            if (ONREFUSEPHONE.ON_REFUSEPHONE_NUMBERS.split("\\;")[i].equals(tPhone)) {
-                return true;
-            }
-        }
-        return false;
-    }
 
     /**
-     * 获取屏幕的宽度
+     *  gets the screen height or width
      */
-    public static int GetWindowW_H(Context tContext, int tModule) {
+    public static int GetWindowScreen(Context tContext, int tModule) {
         int value = 0;
         try {
             WindowManager wm = (WindowManager) tContext.getSystemService(Context.WINDOW_SERVICE);
             switch (tModule) {
-                case config.GET_WINDOW_HEIGHT:
+                case Config.Windows.GET_WINDOW_HEIGHT:
                     value = wm.getDefaultDisplay().getHeight();
                     break;
-                case config.GET_WINDOW_WIDTH:
+                case Config.Windows.GET_WINDOW_WIDHT:
                     value = wm.getDefaultDisplay().getWidth();
                     break;
             }
@@ -88,28 +62,12 @@ public class Tools {
         return value;
     }
 
-    public void DownUrlFile(String tUrlAddr, String tFilename) {
-        try {
-            URL url = new URL(tUrlAddr);
-            URLConnection con = url.openConnection();
-            InputStream is = con.getInputStream();
-            int length = con.getContentLength();
-            String path = Environment.getExternalStorageDirectory() + "/" + tFilename;
-            File f = new File(path);
-            byte[] bs = new byte[1024];
-            int len;
-            OutputStream os = new FileOutputStream(path);
-            while ((len = is.read(bs)) != -1) {
-                os.write(bs, 0, len);
-            }
-            Log.i(config.DEBUG_STR, "下载完成");
-            os.close();
-            is.close();
-        } catch (Exception e) {
-            Log.i(config.DEBUG_STR, "下载失败 e" + e.getMessage());
-        }
-    }
-
+    /**
+     * Determines whether the file exists
+     *
+     * @param tPath file addrs
+     * @return
+     */
     public boolean FileIn(String tPath) {
         try {
             File f = new File(tPath);
@@ -122,29 +80,11 @@ public class Tools {
         return true;
     }
 
-    public Bitmap getSvgPhoto() {
-        return null;
-    }
-
-    public Bitmap CutSvgShape() {
-        return null;
-    }
-
-    public static int dip2px(Context context
-            , int dip) {
-        final float scale = context.getResources().getDisplayMetrics().density;
-        return (int) (dip * scale + 0.5f);
-    }
-
-    public static int px2dip(Context context, int px) {
-        final float scale = context.getResources().getDisplayMetrics().density;
-        return (int) (px / scale + 0.5f);
-    }
 
     /**
-     * 获取用户在本地保存的Token或者是手机号码
+     * get the Token data saved by the User
      *
-     * @param key
+     * @param key Want key
      * @return
      */
     public static String gettoKen(Context tContext, String key) {
@@ -152,57 +92,27 @@ public class Tools {
         try {
             return sharedPreferences.getString(key, "");//如果不存在  就返回一个空字符
         } catch (Exception e) {
-            Log.e(config.DEBUG_STR, "tools.java[+]" + e.getMessage());
+            Log.i(Config.DEBUG, "LeftCompanyProgram Tools.java[+]" + e.getMessage());
             return "";
         }
     }
 
     /**
-     * 存储用户本地的钥匙
+     * saved user data
      *
-     * @param tContext 上下文
-     * @param tdata    字符对 user,1520343232,code,22s
+     * @param tContext
+     * @param tdata    Characters of name,key
      */
     @SuppressLint("ApplySharedPref")
     public static void settoKen(Context tContext, String... tdata) {
         SharedPreferences sharedPreferences = tContext.getSharedPreferences("YazhouUser", 0);
         try {
             sharedPreferences.edit().putString(tdata[0], tdata[1]).commit();
-            Log.i(config.DEBUG_STR, "保存用户数据成功");
+            Log.i(Config.DEBUG, "LeftCompanyProgarm Tools.java[+]保存用户数据成功");
         } catch (Exception e) {
-            Log.e(config.DEBUG_STR, "tools.java[+]" + e.getMessage());
+            Log.e(Config.DEBUG, "LeftCompnayProgram Tools.java[+]" + e.getMessage());
         }
 
-    }
-
-    /**
-     * 显示一个通知消息 默认的
-     *
-     * @param context
-     * @param act     对应要打开的窗口的地址
-     */
-    @SuppressLint("NewApi")
-    public static NotificationManager showStatueBarNotify(Context context, Class<?> act, int showImg, String showText) {
-        NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
-        Notification.Builder builder = new Notification.Builder(context);
-        Intent i = new Intent();
-        i.setClass(context, act);
-        i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        PendingIntent pendingIntent = PendingIntent.getActivity(context, 0, i, 0);
-        builder.setContentIntent(pendingIntent);
-        builder.setAutoCancel(true);
-        builder.setSmallIcon(R.drawable.ico_bell);
-        builder.setLargeIcon(BitmapFactory.decodeResource(context.getResources(), R.drawable.ico_bell));
-        RemoteViews remoteViews = new RemoteViews(context.getPackageName(), R.layout.item_notify);
-        remoteViews.setImageViewResource(R.id.item_notify_img, showImg);
-        remoteViews.setTextViewText(R.id.item_notify_text, showText);
-        try {
-            builder.setContent(remoteViews);
-        } catch (Exception e) {
-            Toast.makeText(context, "您使用的Android不支持该软件哦", Toast.LENGTH_LONG).show();
-        }
-        notificationManager.notify(1, builder.build());
-        return notificationManager;
     }
 
     /**
@@ -214,11 +124,12 @@ public class Tools {
      */
     public static void sendVerificationCodeSMS(final Context tContext, String tPhone) {
 
-        Net.InterServiceGet(tContext, Tools.getSendVerificationAddr(), new Net.onVisitInterServiceListener() {
+
+        Net.InterServiceGet(tContext, Config.HTTP_ADDR.SendVerificationCodeAddr(), new Net.onVisitInterServiceListener() {
             @Override
             public void onSucess(String tOrgin) {
                 JsonEndata jsonEndata = new JsonEndata(tOrgin);
-                if (jsonEndata.getJsonKeyValue(config.WEB_SERVICE_SEND_MESSAGESTATUS).equals(config.SEND_MESSAGE_OK)) {
+                if (jsonEndata.getJsonKeyValue(Config.HttpMethodRequestStatus.HTTP_REQUEST_STATUS).equals(Config.SMS.SEND_SMS_OK)) {
                     Toast.makeText(tContext, "短信发送成功,请注意查收", Toast.LENGTH_SHORT).show();
                 } else {
                     Toast.makeText(tContext, "短信发送失败,请检查您的网络是否连接", Toast.LENGTH_SHORT).show();
@@ -238,37 +149,21 @@ public class Tools {
 
     }
 
-    /**
-     * 发送短信接口
-     *
-     * @param tPhone
-     * @param tText
-     */
-    public static void sendSMS(String tPhone, String tText) {
-
-    }
 
     /**
-     * 获取手机的最大的可用内存
-     *
-     * @param m 指定返回的数据的标注格式大小
+     * get the maximum memory of the phone
+     * return values tyeps is kb
      */
 
     public static int getApplicationMemorySize(int m) {
-        int MemorySize = 0;
-        if (m == config.GET_SYSTEM_MEMORYSIZE_KB) {
-            MemorySize = (int) Runtime.getRuntime().maxMemory();
-        } else if (m == config.GET_SYSTEM_MEMORYSIZE_MB) {
-            MemorySize = (int) Runtime.getRuntime().maxMemory() / 1024;
-        }
-        return MemorySize;
+        return (int) Runtime.getRuntime().maxMemory();
     }
 
 
     /**
-     * 简单的MD5加密
+     * md5     encryption
      *
-     * @param str 要加密的字符集合
+     * @param str want encryption values
      * @return
      */
     public static String getStringMD5(String str) {
@@ -286,13 +181,13 @@ public class Tools {
             }
             return strBuf.toString();
         } catch (Exception e) {
-            Log.e(config.DEBUG_STR, "tools.java:" + e.getMessage());
+            Log.e(Config.DEBUG, "LeftCompanyProgram Tools.java[+]:" + e.getMessage());
             return "";
         }
     }
 
     /**
-     * 获取设备唯一标识
+     * gets the device unique identifier
      */
     @SuppressLint({"NewApi", "MissingPermission"})
     public static String getsystemDevicdeId(Context tContext) {
@@ -301,22 +196,6 @@ public class Tools {
             return telephonyManager.getImei();
         } catch (Exception e) {
             return "";
-        }
-    }
-
-    /**
-     * 计算两个地图点p1点 和 p2点之间的距离
-     * 失败返回一个null
-     * @param p1
-     * @param p2
-     *
-     */
-    public static Double CalcMapdistance(LatLng p1, LatLng p2) {
-        try {
-            return DistanceUtil.getDistance(p1, p2);
-        } catch (Exception e) {
-            Log.e(config.DEBUG_STR, e.getMessage());
-            return null;
         }
     }
 
