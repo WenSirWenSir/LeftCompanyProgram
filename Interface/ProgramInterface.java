@@ -1,0 +1,1 @@
+package com.zbyj.Yazhou.LeftCompanyProgram.Interface;/** * 大家类可以用的接口 */public interface ProgramInterface {    public void onSucess(String data,int code);    public void onFaile(String data,int code);}
